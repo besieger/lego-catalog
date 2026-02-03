@@ -38,7 +38,14 @@ jobs:
       - name: Compile PDF again (for references)
         run: pdflatex -interaction=nonstopmode -halt-on-error catalog.tex
 
-      - name: Upload PDF
+      - name: Commit and push PDF
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add catalog.pdf
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update generated catalog.pdf" && git push)
+
+      - name: Upload PDF artifact
         uses: actions/upload-artifact@v4
         with:
           name: catalog-pdf
