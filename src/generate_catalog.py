@@ -45,8 +45,22 @@ def render_latex(catalog, title="LEGO Catalog"):
         # Escape LaTeX special characters
         name = name.replace("&", r"\&").replace("%", r"\%").replace("#", r"\#")
         ip = ip.replace("&", r"\&")
-        missing = missing.replace("&", r"\&")
+        missing = missing.replace("&", r"\&").replace("%", r"\%")
         notes = notes.replace("&", r"\&")
+        
+        # Format missing pieces as bullet list if it contains newlines
+        missing_text = ""
+        if missing and missing != "None":
+            lines = [line.strip() for line in missing.split("\n") if line.strip()]
+            if len(lines) > 1:
+                missing_text = r"\begin{itemize}" + "\n"
+                for line in lines:
+                    missing_text += f"  \\item {line}\n"
+                missing_text += r"\end{itemize}"
+            else:
+                missing_text = missing
+        else:
+            missing_text = missing
         
         page = f"""
 \\begin{{center}}
@@ -62,7 +76,7 @@ def render_latex(catalog, title="LEGO Catalog"):
 \\vspace{{2em}}
 
 \\textbf{{Theme:}} {ip} \\\\[0.5em]
-\\textbf{{Missing Pieces:}} {missing} \\\\[0.5em]
+\\textbf{{Missing Pieces:}} {missing_text} \\\\[0.5em]
 \\textbf{{Notes:}} {notes}
 
 \\vfill
