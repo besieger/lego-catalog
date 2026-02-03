@@ -7,72 +7,71 @@ import sys
 
 def render_latex(catalog, title="LEGO Catalog"):
     """Generate LaTeX document from catalog data."""
+    # Filter: only "Ready to go" and sets with number or name
+    filtered = [
+        item for item in catalog
+        if item.get("State", "").strip() == "Ready to go"
+        and (item.get("Set Number", "").strip() or item.get("Name", "").strip())
+    ]
+    
     header = r"""\documentclass{article}
 \usepackage[utf8]{inputenc}
-\usepackage[margin=0.5in]{geometry}
-\usepackage{longtable}
-\usepackage{booktabs}
+\usepackage[margin=0.75in]{geometry}
 \usepackage{xcolor}
-\usepackage{colortbl}
 
 \title{%s}
-\author{Generated automatically}
+\author{LEGO Collection Catalog}
 \date{\today}
+
+\pagestyle{empty}
 
 \begin{document}
 \maketitle
+\thispagestyle{empty}
 
-\section*{Summary}
-Total Sets: %d \\
-Ready to go: %d \\
-Partially complete: %d \\
-In the aether: %d
-
-\section*{Inventory}
-
-\begin{longtable}{|p{1cm}|p{3cm}|p{1.5cm}|p{1cm}|p{1.2cm}|p{2cm}|}
-\hline
-\textbf{Set \#} & \textbf{Name} & \textbf{Theme} & \textbf{Pieces} & \textbf{Age} & \textbf{State} \\
-\hline
-\endhead
-\hline
-\endfoot
-""" % (title, len(catalog), 
-       sum(1 for x in catalog if x.get("State") == "Ready to go"),
-       sum(1 for x in catalog if x.get("State") == "Partially complete"),
-       sum(1 for x in catalog if x.get("State") == "In the aether"))
+\newpage
+""" % title
     
-    rows = []
-    for item in catalog:
+    pages = []
+    for item in filtered:
         set_num = item.get("Set Number", "").strip() or "---"
         name = item.get("Name", "").strip() or "Unknown"
-        theme = item.get("IP", "").strip() or item.get("Theme", "---")
-        pieces = item.get("Pieces", "")
-        age = item.get("Age min", "")
-        state = item.get("State", "").strip() or "Unknown"
+        age = item.get("Age min", "").strip() or "---"
+        pieces = item.get("Pieces", "").strip() or "---"
+        ip = item.get("IP", "").strip() or "---"
+        missing = item.get("Missing Pieces", "").strip() or "None"
+        notes = item.get("Notes", "").strip() or "---"
         
         # Escape LaTeX special characters
         name = name.replace("&", r"\&").replace("%", r"\%").replace("#", r"\#")
-        theme = theme.replace("&", r"\&").replace("%", r"\%")
-        state = state.replace("&", r"\&")
+        ip = ip.replace("&", r"\&")
+        missing = missing.replace("&", r"\&")
+        notes = notes.replace("&", r"\&")
         
-        # Color code state
-        state_color = {
-            "Ready to go": r"\cellcolor[gray]{0.9}",
-            "Partially complete": r"\cellcolor[gray]{0.7}",
-            "In the aether": r"\cellcolor[gray]{0.5}\textcolor{white}"
-        }.get(state, "")
-        
-        state_text = f"{state_color}{state}" if state_color else state
-        
-        rows.append(f"{set_num} & {name} & {theme} & {pieces} & {age} & {state_text} \\\\")
-    
-    footer = r"""
-\end{longtable}
+        page = f"""
+{{% Large \\textbf{{{name}}} \\\\[2em] %}}
 
-\end{document}
+{{\\large Set \\#{set_num}}}
+
+\\vspace{{1em}}
+
+{{\\textit{{Age {age}+ \\quad Pieces: {pieces}}}}}
+
+\\vspace{{2em}}
+
+\\textbf{{Theme:}} {ip} \\\\[0.5em]
+\\textbf{{Missing Pieces:}} {missing} \\\\[0.5em]
+\\textbf{{Notes:}} {notes}
+
+\\vfill
+
+\\newpage
 """
-    return header + "\n".join(rows) + "\n" + footer
+        pages.append(page)
+    
+    footer = r"""\end{document}
+"""
+    return header + "".join(pages) + footer
 
 
 def main():
@@ -83,8 +82,6 @@ def main():
                         help="Output .tex file")
     parser.add_argument("-t", "--title", default="LEGO Catalog", 
                         help="Document title")
-    parser.add_argument("--convert-csv", action="store_true",
-                        help="Convert CSV to JSON first (implies --input is CSV)")
     args = parser.parse_args()
 
     # Load data
