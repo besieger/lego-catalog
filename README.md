@@ -1,5 +1,7 @@
 # LEGO Catalog
 
+[![Build catalog PDF](https://github.com/besieger/lego-catalog/actions/workflows/build-pdf.yml/badge.svg)](https://github.com/besieger/lego-catalog/actions/workflows/build-pdf.yml)
+
 A catalog management system for LEGO collections.
 
 ## Project Structure
