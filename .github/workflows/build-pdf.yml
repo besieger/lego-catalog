@@ -26,6 +26,11 @@ jobs:
       - name: Generate catalog.tex
         run: python src/generate_catalog.py -i data/sample_catalog.json -o catalog.tex
 
+      - name: Install TeX Live
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y texlive-latex-base texlive-latex-extra
+
       - name: Compile PDF with pdflatex
         run: pdflatex -interaction=nonstopmode -halt-on-error catalog.tex
         continue-on-error: true
