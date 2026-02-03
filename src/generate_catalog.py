@@ -49,13 +49,15 @@ def render_latex(catalog, title="LEGO Catalog"):
         notes = notes.replace("&", r"\&")
         
         page = f"""
-{{% Large \\textbf{{{name}}} \\\\[2em] %}}
+\\begin{{center}}
+{{\\Huge \\textbf{{{name}}}}}
 
-{{\\large Set \\#{set_num}}}
+{{\\small Set \\#{set_num}}}
+\\end{{center}}
 
-\\vspace{{1em}}
+\\vspace{{2em}}
 
-{{\\textit{{Age {age}+ \\quad Pieces: {pieces}}}}}
+{{\\large Age {age}+ \\quad {pieces} pieces}}
 
 \\vspace{{2em}}
 
