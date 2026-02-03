@@ -11,6 +11,16 @@ A catalog management system for LEGO collections.
 
 To get started with this project, clone the repository and follow the setup instructions.
 
+## Usage
+
+Generate a LaTeX file from the sample JSON data:
+
+```powershell
+python src/generate_catalog.py -i data/sample_catalog.json -o catalog.tex
+```
+
+This writes `catalog.tex` in the repository root. Compile it with `pdflatex` if you want a PDF.
+
 ## License
 
 MIT
